@@ -1,5 +1,29 @@
 <h1> Concert : </h1>
 
+<h2> Set up the project </h2>
+
+<h3>Create the database</h3>
+
+In the source directory (with the Dockerfile) :
+
+      docker build -t concert-postgre-db .
+
+<h3>Install the node js project</h3>
+
+In the source directory (with app.js) :
+
+      npm install
+
+<h2> Run the project </h2>
+
+      docker run -p 5432:5432 -e POSTGRES_PASSWORD=admin -d concert-postgre-db
+
+      npm start
+
+Then do your request on http://localhost:3031
+
+<h2>Routes</h2>
+
 <h3> /concert/add POST : </h3>
 
     concertId : UUID,
@@ -8,7 +32,7 @@
     place : varchar
 
 
-<H3> /concert/idConcert GET </h3> (Billet US2 + Concert US4) 
+<h3> /concert/idConcert GET </h3> (Billet US2 + Concert US4) 
 
       concertId : UUID,
       title : varchar,
@@ -23,6 +47,11 @@
 
 <h3> /concerts GET </h3> (Concert US3)
 
+
+<h2>Technical informations</h2>
+
+API based on Express JS (made with Express Generator)
+Uses Drizzle ORM
 
 <h2> User Stories </h2>
 
