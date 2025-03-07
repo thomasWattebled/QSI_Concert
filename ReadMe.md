@@ -2,23 +2,31 @@
 
 <h2> Set up the project </h2>
 
-<h3>Create the database</h3>
-
-In the source directory (with the Dockerfile) :
-
-      docker build -t concert-postgre-db .
-
 <h3>Install the node js project</h3>
 
 In the source directory (with app.js) :
 
       npm install
 
-<h2> Run the project </h2>
+<h3>Create the database</h3>
+
+In the source directory (with the Dockerfile) :
+
+      docker build -t concert-postgre-db .
 
       docker run -p 5432:5432 -e POSTGRES_PASSWORD=admin -d concert-postgre-db
 
-      npm start
+<h3>Apply drizzle changes to the database</h3>
+
+In the source directory (with drizzle.config.ts) :
+
+      npx drizzle-kit push
+
+<h2> Run the project </h2>
+
+      (if the container is not already running) docker run -p 5432:5432 -e POSTGRES_PASSWORD=admin -d concert-postgre-db
+
+      npm run dev
 
 Then do your request on http://localhost:3031
 
