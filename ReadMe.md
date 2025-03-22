@@ -30,33 +30,14 @@ In the source directory (with drizzle.config.ts) :
 
 Then do your request on http://localhost:3031
 
-<h2>Routes</h2>
+<h2> Swagger </h2>
 
-<h3> /concert/add POST : </h3>
+Put the content of concertApi.yaml
 
-    concertId : UUID,
-    totalSeats : int,
-    availableSeats : int,
-    place : varchar
+In https://editor.swagger.io
 
 
-<h3> /concert/idConcert GET </h3> (Billet US2 + Concert US4) 
-
-      concertId : UUID,
-      title : varchar,
-      place : varchar,
-      date : datetime
-      totalSeats : int,
-      availableSeats : int,
-      canceled : bool (Concert RG1)
-
-
-<h3> /concert/idConcert DELETE </h3> (Concert US2)
-
-<h3> /concerts GET </h3> (Concert US3)
-
-
-<h2>Technical informations</h2>
+<h2> Technical informations </h2>
 
 API based on Express JS (made with Express Generator)
 Uses Drizzle ORM

@@ -1,0 +1,277 @@
+openapi: 3.0.0
+info:
+  title: Concert API
+  version: v1
+  description: API for managing concert information.
+  contact:
+    name: De Sainte Maresville Maxime
+    email: maxime.de-sainte-maresville.etu@univ-lille.fr
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3031/concert
+    description: Concert API Server
+
+components:
+  schemas:
+    Concert:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier of the concert.
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+          description: The title of the concert.
+        place:
+          type: string
+          maxLength: 200
+          description: The venue where the concert is held.
+        image:
+          type: string
+          maxLength: 300
+          nullable: true
+          description: URL of the concert image.
+        concertDate:
+          type: string
+          format: date-time
+          description: The date and time of the concert.
+        totalSeats:
+          type: integer
+          description: The total number of seats available for the concert.
+        availableSeats:
+          type: integer
+          description: The number of seats currently available for the concert.
+        canceled:
+          type: boolean
+          default: false
+          description: Indicates if the concert has been canceled.
+        canceledAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time when the concert was canceled (if applicable).
+          readOnly: true
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+          description: The timestamp when the concert record was created.
+
+paths:
+  /concerts:
+    get:
+      summary: Get all concerts (with optional limit)
+      description: Retrieves a list of all concerts. Optionally accepts a 'limit' query parameter to restrict the number of results.
+      tags:
+        - Concerts
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+          description: Optional. Maximum number of concerts to return.
+      responses:
+        "200":
+          description: Successful response
+
+        "500":
+          description: Internal Server Error
+
+    post:
+      summary: Add a new concert
+      description: Adds a new concert to the database using query parameters.
+      tags:
+        - Concerts
+      parameters:
+        - in: query
+          name: title
+          required: true
+          schema:
+            type: string
+            maxLength: 200
+          description: The title of the concert.
+        - in: query
+          name: place
+          required: true
+          schema:
+            type: string
+            maxLength: 200
+          description: The venue where the concert is held.
+        - in: query
+          name: image
+          required: true
+          schema:
+            type: string
+            maxLength: 300
+          description: URL of the concert image.
+        - in: query
+          name: concertDate
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: The date and time of the concert (ISO 8601 format).
+        - in: query
+          name: totalSeats
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: The total number of seats available.
+      responses:
+        "200":
+          description: Concert created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Concert"
+        "400":
+          description: Invalid request parameters
+        "409":
+          description: Concert already exists
+        "500":
+          description: Internal Server Error
+
+  /concerts/{concertId}:
+    get:
+      summary: Get a concert by ID
+      description: Retrieves a specific concert based on its ID.
+      tags:
+        - Concerts
+      parameters:
+        - in: path
+          name: concertId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the concert to retrieve.
+      responses:
+        "200":
+          description: Successful response
+        "400":
+          description: Invalid concert ID format
+        "404":
+          description: Concert not found
+        "500":
+          description: Internal Server Error
+
+    delete:
+      summary: Delete a concert by ID
+      description: Deletes a specific concert based on its ID.
+      tags:
+        - Concerts
+      parameters:
+        - in: path
+          name: concertId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the concert to delete.
+      responses:
+        "204":
+          description: Concert deleted successfully (no content returned)
+        "400":
+          description: Invalid concert ID format
+        "404":
+          description: Concert not found
+        "500":
+          description: Internal Server Error
+
+  /concerts/increaseAvailableSeats/{concertId}:
+    post:
+      summary: Increase available seats for a concert
+      description: Increases the number of available seats for a specific concert.
+      tags:
+        - Concerts
+      parameters:
+        - in: path
+          name: concertId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the concert to update.
+      responses:
+        "200":
+          description: Available seats increased successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Concert"
+        "400":
+          description: Invalid concert ID format or concert is already empty
+        "404":
+          description: Concert not found
+        "500":
+          description: Internal Server Error
+
+  /concerts/decreaseAvailableSeats/{concertId}:
+    post:
+      summary: Decrease available seats for a concert
+      description: Decreases the number of available seats for a specific concert.
+      tags:
+        - Concerts
+      parameters:
+        - in: path
+          name: concertId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the concert to update.
+      responses:
+        "200":
+          description: Available seats decreased successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Concert"
+        "400":
+          description: Invalid concert ID format or concert is already full
+        "404":
+          description: Concert not found
+        "500":
+          description: Internal Server Error
+
+  /concerts/cancelConcert/{concertId}:
+    post:
+      summary: Cancel a concert
+      description: Sets the 'canceled' status of a specific concert to true.
+      tags:
+        - Concerts
+      parameters:
+        - in: path
+          name: concertId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The ID of the concert to cancel.
+      responses:
+        "200":
+          description: Concert canceled successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Concert"
+        "400":
+          description: Invalid concert ID format or concert is already canceled
+        "404":
+          description: Concert not found
+        "500":
+          description: Internal Server Error
