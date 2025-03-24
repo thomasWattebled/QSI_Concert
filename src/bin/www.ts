@@ -8,6 +8,9 @@ import http from 'http';
  */
 
 import app from '../app';
+import { startConcertRPC } from '../rabbitMQ/rabbitmq-concert';
+
+startConcertRPC(); 
 
 /**
  * Get port from environment and store in Express.
