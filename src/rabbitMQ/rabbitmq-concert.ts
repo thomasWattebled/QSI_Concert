@@ -19,8 +19,55 @@ export async function startConcertRPC() {
       if (message) {
         const concertId = message.content.toString();
         console.log(`🎯 Requête reçue pour le concert ID : ${concertId}`);
-
         try {
+          const concert = await db.select().from(concertTable).where(eq(concertTable.id,concertId));
+          if (concert.length > 0) {
+              const modifiedConcert = concert[0];
+              console.log(`✅ Concert trouvé`);
+              console.log(modifiedConcert.availableSeats)
+              console.log(modifiedConcert.totalSeats)
+              if (modifiedConcert.availableSeats > 0) {
+                const resultConcert = await db.update(concertTable).set({availableSeats: (modifiedConcert.availableSeats - 1)}).where(eq(concertTable.id, concertId)).returning();
+              channel.sendToQueue(
+                    message.properties.replyTo,
+                    Buffer.from(JSON.stringify(resultConcert)),
+                    {
+                      correlationId: message.properties.correlationId,
+                    }
+                  );  
+                  console.log(`✅ Envoie du Concert`);
+            
+                } else {
+                  channel.sendToQueue(
+                    message.properties.replyTo,
+                    Buffer.from(JSON.stringify({ error: 'BadRequest',
+                      message: 'The concert is already empty.', })),
+                    {
+                      correlationId: message.properties.correlationId,
+                    })
+              }
+          } else {
+            channel.sendToQueue(
+              message.properties.replyTo,
+              Buffer.from(JSON.stringify({ error: 'NotFound',
+                message: `Concert with ID '${concertId}' not found.`,})),
+              {
+                correlationId: message.properties.correlationId,
+              })
+          }
+      } catch (error: any) {
+          console.log(error);
+          if (error.code === "22P02") {
+            channel.sendToQueue(
+              message.properties.replyTo,
+              Buffer.from(JSON.stringify({ error: 'BadRequest',
+                message: 'The type of the id isn\'t valid',})),
+              {
+                correlationId: message.properties.correlationId,
+              })
+          }
+      }
+        /*try {
           const concert = await db.select().from(concertTable).where(eq(concertTable.id, concertId));
           if (concert.length > 0) {
             console.log(message.properties.correlationId)
@@ -53,7 +100,7 @@ export async function startConcertRPC() {
             }
           );
           channel.ack(message);
-        }
+        }*/
       }
     });
 
